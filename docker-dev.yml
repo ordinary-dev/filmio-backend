@@ -1,0 +1,11 @@
+services:
+  filmio-backend:
+    build:
+      context: .
+      dockerfile: docker-dev.Dockerfile
+    volumes:
+      - './filmio:/usr/src/app/filmio'
+      - './photos:/usr/src/app/photos'
+    ports:
+      - 8000:8000
+    restart: unless-stopped

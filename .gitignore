@@ -1,0 +1,11 @@
+# Python
+/.venv
+__pycache__
+
+# Storage
+/.mongodb
+/photos
+
+# Config
+/settings.ini
+/.env
