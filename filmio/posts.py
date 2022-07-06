@@ -78,3 +78,40 @@ async def get_posts(username: str) -> list[PostOut]:
 async def get_posts_count(username: str) -> int:
     """ Returns the number of posts a @username has """
     return posts.count_documents({'author': username})
+
+
+@posts_router.put('/posts/{id}')
+async def update_post(id: str, new_post: Post, user: User = Depends(get_current_user)):
+    """
+    Update information about post
+    
+    Raises:
+    - `HTTPException` - post was not found or current user != author
+    """
+    query = {'photo_id': id}
+    post = posts.find_one(query)
+    if not post:
+        raise HTTPException(404, 'Post was not found')
+    post = PostInDB(**post)
+    if post.author != user.username:
+        raise HTTPException(400, 'You are not the author of the post')
+    posts.update_one(query, PostInDB(**new_post.dict(), author=post.author, timestamp=post.timestamp))
+
+
+@posts_router.delete('/posts/{id}')
+async def delete_post(id: str, user: User = Depends(get_current_user)):
+    """
+    Delete one post by id
+    
+    Raises:
+    - `HTTPException` - post was not found or current user != author
+    """
+    query = {'photo_id': id}
+    post = posts.find_one(query)
+    if not post:
+        raise HTTPException(404, 'Post was not found')
+    post = PostInDB(**post)
+    if post.author != user.username:
+        raise HTTPException(400, 'You are not the author of the post')
+    posts.delete_one(query)
+    return post
