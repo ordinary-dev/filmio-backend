@@ -48,9 +48,9 @@ docker-compose -f docker-prod.yml up --build
 Returns information about user.
 ```JSON
 {
-    'username': 'string',
-    'name': 'string',
-    'profile_picture': 'string'
+    "username": "string",
+    "name": "string",
+    "profile_picture": "string"
 }
 ```
 
@@ -73,10 +73,10 @@ Get JWT access token.
 Upload a new photo.
 ```JSON
 {
-    'hash': 'str',
-    'original_extension': 'str',
-    'width': 0,
-    'height': 0
+    "hash": "string",
+    "original_extension": "string",
+    "width": 0,
+    "height": 0
 }
 ```
 
