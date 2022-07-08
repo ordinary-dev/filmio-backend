@@ -29,7 +29,7 @@ class PostOut(PostInDB):
 
 
 @posts_router.post('/posts', response_model=PostInDB)
-async def new_post(post: Post, user: User = Depends(get_current_user)) -> PostInDB:
+async def save_new_post(post: Post, user: User = Depends(get_current_user)) -> PostInDB:
     """
     Store the new post in the database.
 
@@ -61,7 +61,7 @@ async def get_random_post() -> PostOut:
     return PostOut(**post, photo_width=photo['width'], photo_height=photo['height'])
 
 
-@posts_router.get('/posts/{username}', response_model=list[PostOut])
+@posts_router.get('/users/{username}/posts', response_model=list[PostOut])
 async def get_posts(username: str) -> list[PostOut]:
     """ Returns all posts by a specific user """
     res = []
@@ -74,7 +74,45 @@ async def get_posts(username: str) -> list[PostOut]:
     return res
 
 
-@posts_router.get('/posts/{username}/count', response_model=int)
+@posts_router.get('/users/{username}/posts/count', response_model=int)
 async def get_posts_count(username: str) -> int:
     """ Returns the number of posts a @username has """
     return posts.count_documents({'author': username})
+
+
+@posts_router.put('/posts/{id}')
+async def update_post(id: str, new_post: Post, user: User = Depends(get_current_user)):
+    """
+    Update information about post
+
+    Raises:
+    - `HTTPException` - post was not found or current user != author
+    """
+    query = {'photo_id': id}
+    post = posts.find_one(query)
+    if not post:
+        raise HTTPException(404, 'Post was not found')
+    post = PostInDB(**post)
+    if post.author != user.username:
+        raise HTTPException(400, 'You are not the author of the post')
+    posts.update_one(query, PostInDB(**new_post.dict(),
+                     author=post.author, timestamp=post.timestamp))
+
+
+@posts_router.delete('/posts/{id}')
+async def delete_post(id: str, user: User = Depends(get_current_user)):
+    """
+    Delete one post by id
+
+    Raises:
+    - `HTTPException` - post was not found or current user != author
+    """
+    query = {'photo_id': id}
+    post = posts.find_one(query)
+    if not post:
+        raise HTTPException(404, 'Post was not found')
+    post = PostInDB(**post)
+    if post.author != user.username:
+        raise HTTPException(400, 'You are not the author of the post')
+    posts.delete_one(query)
+    return post
