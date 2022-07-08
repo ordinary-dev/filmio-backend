@@ -96,11 +96,11 @@ Create a new post.
 
 Get random post.
 
-* `GET /posts/{username}`
+* `GET /users/{username}/posts`
 
 Get all posts from @username.
 
-* `GET /posts/{username}/count`
+* `GET /users/{username}/posts/count`
 
 Get the number of posts.
 

@@ -61,7 +61,7 @@ async def get_random_post() -> PostOut:
     return PostOut(**post, photo_width=photo['width'], photo_height=photo['height'])
 
 
-@posts_router.get('/posts/{username}', response_model=list[PostOut])
+@posts_router.get('/users/{username}/posts', response_model=list[PostOut])
 async def get_posts(username: str) -> list[PostOut]:
     """ Returns all posts by a specific user """
     res = []
@@ -74,7 +74,7 @@ async def get_posts(username: str) -> list[PostOut]:
     return res
 
 
-@posts_router.get('/posts/{username}/count', response_model=int)
+@posts_router.get('/users/{username}/posts/count', response_model=int)
 async def get_posts_count(username: str) -> int:
     """ Returns the number of posts a @username has """
     return posts.count_documents({'author': username})
