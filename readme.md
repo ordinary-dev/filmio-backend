@@ -103,3 +103,11 @@ Get all posts from @username.
 * `GET /posts/{username}/count`
 
 Get the number of posts.
+
+* `PUT /posts/{id}`
+
+Update information about post
+
+* `DELETE /posts/{id}`
+
+Delete a post
