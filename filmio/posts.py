@@ -29,7 +29,7 @@ class PostOut(PostInDB):
 
 
 @posts_router.post('/posts', response_model=PostInDB)
-async def new_post(post: Post, user: User = Depends(get_current_user)) -> PostInDB:
+async def save_new_post(post: Post, user: User = Depends(get_current_user)) -> PostInDB:
     """
     Store the new post in the database.
 
