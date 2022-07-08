@@ -84,7 +84,7 @@ async def get_posts_count(username: str) -> int:
 async def update_post(id: str, new_post: Post, user: User = Depends(get_current_user)):
     """
     Update information about post
-    
+
     Raises:
     - `HTTPException` - post was not found or current user != author
     """
@@ -95,14 +95,15 @@ async def update_post(id: str, new_post: Post, user: User = Depends(get_current_
     post = PostInDB(**post)
     if post.author != user.username:
         raise HTTPException(400, 'You are not the author of the post')
-    posts.update_one(query, PostInDB(**new_post.dict(), author=post.author, timestamp=post.timestamp))
+    posts.update_one(query, PostInDB(**new_post.dict(),
+                     author=post.author, timestamp=post.timestamp))
 
 
 @posts_router.delete('/posts/{id}')
 async def delete_post(id: str, user: User = Depends(get_current_user)):
     """
     Delete one post by id
-    
+
     Raises:
     - `HTTPException` - post was not found or current user != author
     """
