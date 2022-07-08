@@ -42,10 +42,41 @@ docker-compose -f docker-prod.yml up --build
 ```
 
 ## Routes
+---
 ### Users
+
+* `POST /users`
+
+Create a new user.
+
+| Name          | Location | Type | Required? |
+| ---           | ---      |---   | ---       |
+| username      | body     | str  | true      |
+| password      | body     | str  | true      |
+| name          | body     | str  | false     |
+
+Request:
+```
+curl -X POST \
+     -H "Content-Type: application/json" \
+     -d '{"username": "user", "password": "pass"}' \
+     "http://api.filmio/users"
+```
+
 * `GET /users/{username}`
 
-Returns information about user.
+Get information about user.
+
+| Name          | Location | Type | Required? |
+| ---           | ---      |---   | ---       |
+| username      | query    | str  | true      |
+
+Request:
+```
+curl "http://api.filmio/users/{username}"
+```
+
+Response:
 ```JSON
 {
     "username": "string",
@@ -54,23 +85,76 @@ Returns information about user.
 }
 ```
 
+* `POST /token`
+
+Get access token (JWT).
+
+| Name          | Location | Type | Required? |
+| ---           | ---      |---   | ---       |
+| username      | body     | str  | true      |
+| password      | body     | str  | true      |
+
+Request:
+```
+curl -X 'POST' \
+     -H 'Content-Type: application/x-www-form-urlencoded' \
+     -d 'username=user&password=pass' \
+     'http://api.filmio/token'
+```
+
+Response:
+```JSON
+{
+  "access_token": "string",
+  "token_type": "bearer"
+}
+```
+
 * `GET /me`
 
 Returns information about current user.
 
-* `POST /users`
+| Name          | Location | Type   | Required? |
+| ---           | ---      | ---    | ---       |
+| Authorization | header   | bearer | true      |
 
-Create a new user.
+Request:
+```
+curl -H 'Authorization: Bearer {token}' \
+     'http://api.filmio/me'
+```
 
-* `POST /token`
+Response:
+```JSON
+{
+    "username": "string",
+    "name": "string",
+    "profile_picture": "string"
+}
+```
 
-Get JWT access token.
-
+---
 ### Posts
 
 * `POST /photos`
 
 Upload a new photo.
+
+| Name          | Location | Type   | Required? |
+| ---           | ---      | ---    | ---       |
+| Authorization | header   | bearer | true      |
+| file          | body     | file   | true      |
+
+Request:
+```
+curl -X 'POST' \
+     -H 'Authorization: Bearer {token}' \
+     -H 'Content-Type: multipart/form-data' \
+     -F 'file=@{image.jpg}' \
+     'http://api.filmio/photos/'
+```
+
+Response:
 ```JSON
 {
     "hash": "string",
@@ -80,34 +164,177 @@ Upload a new photo.
 }
 ```
 
-* `GET /photos/{file_hash}/content`
+* `GET /photos/{hash}/content`
 
 Get a photo.
 
-* `GET /photos/{file_hash}/info`
+| Name          | Location | Type   | Required? |
+| ---           | ---      | ---    | ---       |
+| hash          | query    | string | true      |
+
+Request:
+```
+curl 'http://api.filmio/photos/{hash}/content'
+```
+
+Response: image
+
+* `GET /photos/{hash}/info`
 
 Get information about photo (width, height, extension)
+
+| Name          | Location | Type   | Required? |
+| ---           | ---      | ---    | ---       |
+| hash          | query    | string | true      |
+
+Request:
+```
+curl 'http://api.filmio/photos/{hash}/info'
+```
+
+Response:
+```JSON
+{
+  "hash": "string",
+  "original_extension": "string",
+  "width": 0,
+  "height": 0
+}
+```
 
 * `POST /posts`
 
 Create a new post.
 
+| Name          | Location | Type   | Required? |
+| ---           | ---      | ---    | ---       |
+| Authorization | header   | bearer | true      |
+| photo_id      | body     | string | true      |
+| title         | body     | string | true      |
+| description   | body     | string | true      |
+| place         | body     | string | true      |
+
+Request:
+```
+curl -X 'POST' \
+     -H 'Authorization: Bearer {token}' \
+     -H 'Content-Type: application/json' \
+     -d '{"title": "string", "description": "string","place": "string", "photo_id": "string"}' \
+     'http://api.filmio/posts'
+```
+
+Response:
+```JSON
+{
+  "title": "string",
+  "description": "string",
+  "place": "string",
+  "photo_id": "string",
+  "author": "string",
+  "timestamp": 0
+}
+```
+
 * `GET /posts/random`
 
 Get random post.
+
+Request:
+```
+curl 'http://api.filmio/posts/random'
+```
+
+Response:
+```JSON
+{
+  "title": "string",
+  "description": "string",
+  "place": "string",
+  "photo_id": "string",
+  "author": "string",
+  "timestamp": 0,
+  "photo_width": 0,
+  "photo_height": 0
+}
+```
 
 * `GET /users/{username}/posts`
 
 Get all posts from @username.
 
+| Name          | Location | Type   | Required? |
+| ---           | ---      | ---    | ---       |
+| username      | query    | string | true      |
+
+Request:
+```
+curl http://api.filmio/users/{username}/posts
+```
+
+Response:
+```JSON
+[
+  {
+    "title": "string",
+    "description": "string",
+    "place": "string",
+    "photo_id": "string",
+    "author": "string",
+    "timestamp": 0,
+    "photo_width": 0,
+    "photo_height": 0
+  }
+]
+```
+
 * `GET /users/{username}/posts/count`
 
 Get the number of posts.
 
+| Name          | Location | Type   | Required? |
+| ---           | ---      | ---    | ---       |
+| username      | query    | string | true      |
+
+Request:
+```
+curl http://api.filmio/users/{username}/posts/count
+```
+
+Response:
+```JSON
+0
+```
+
 * `PUT /posts/{id}`
 
-Update information about post
+Update information about post.
+
+| Name          | Location | Type   | Required? |
+| ---           | ---      | ---    | ---       |
+| id            | query    | string | true      |
+| Authorization | header   | bearer | true      |
+
+Request:
+```
+curl -X 'PUT' \
+     -H 'Authorization: Bearer {token}' \
+     -H 'Content-Type: application/json' \
+     -d '{"title": "string", "description": "string", "place": "string", "photo_id": "string"}' \
+     'http://api.filmio/posts/{id}'
+```
 
 * `DELETE /posts/{id}`
 
-Delete a post
+Delete a post.
+
+| Name          | Location | Type   | Required? |
+| ---           | ---      | ---    | ---       |
+| id            | query    | string | true      |
+| Authorization | header   | bearer | true      |
+
+Request:
+```
+curl -X 'DELETE' \
+     -H 'Authorization: Bearer {token}' \
+     'http://api.filmio/posts/{id}'
+```
