@@ -252,9 +252,7 @@ Response:
   "place": "string",
   "photo_id": "string",
   "author": "string",
-  "timestamp": 0,
-  "photo_width": 0,
-  "photo_height": 0
+  "timestamp": 0
 }
 ```
 
@@ -273,18 +271,7 @@ curl http://api.filmio/users/{username}/posts
 
 Response:
 ```JSON
-[
-  {
-    "title": "string",
-    "description": "string",
-    "place": "string",
-    "photo_id": "string",
-    "author": "string",
-    "timestamp": 0,
-    "photo_width": 0,
-    "photo_height": 0
-  }
-]
+["string"]
 ```
 
 * `GET /users/{username}/posts/count`
@@ -303,6 +290,31 @@ curl http://api.filmio/users/{username}/posts/count
 Response:
 ```JSON
 0
+```
+
+* `GET /posts/{id}`
+
+Get information about post.
+
+| Name          | Location | Type   | Required? |
+| ---           | ---      | ---    | ---       |
+| id            | query    | string | true      |
+
+Request:
+```
+curl 'http://api.filmio/posts/{id}'
+```
+
+Response:
+```JSON
+{
+  "title": "string",
+  "description": "string",
+  "place": "string",
+  "photo_id": "string",
+  "author": "string",
+  "timestamp": 0
+}
 ```
 
 * `PUT /posts/{id}`
