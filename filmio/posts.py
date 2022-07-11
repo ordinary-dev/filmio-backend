@@ -12,10 +12,10 @@ posts_router = APIRouter(tags=['posts'])
 
 
 class Post(BaseModel):
-    title: str
-    description: str
-    place: str
     photo_id: str
+    title: str | None = None
+    description: str | None = None
+    place: str | None = None
 
 
 class PostInDB(Post):

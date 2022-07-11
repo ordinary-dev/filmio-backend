@@ -210,16 +210,16 @@ Create a new post.
 | ---           | ---      | ---    | ---       |
 | Authorization | header   | bearer | true      |
 | photo_id      | body     | string | true      |
-| title         | body     | string | true      |
-| description   | body     | string | true      |
-| place         | body     | string | true      |
+| title         | body     | string | false     |
+| description   | body     | string | false     |
+| place         | body     | string | false     |
 
 Request:
 ```
 curl -X 'POST' \
      -H 'Authorization: Bearer {token}' \
      -H 'Content-Type: application/json' \
-     -d '{"title": "string", "description": "string","place": "string", "photo_id": "string"}' \
+     -d '{"photo_id": "string", "title": "string", "description": "string", "place": "string"}' \
      'http://api.filmio/posts'
 ```
 
@@ -325,13 +325,16 @@ Update information about post.
 | ---           | ---      | ---    | ---       |
 | id            | query    | string | true      |
 | Authorization | header   | bearer | true      |
+| title         | body     | string | false     |
+| description   | body     | string | false     |
+| place         | body     | string | false     |
 
 Request:
 ```
 curl -X 'PUT' \
      -H 'Authorization: Bearer {token}' \
      -H 'Content-Type: application/json' \
-     -d '{"title": "string", "description": "string", "place": "string", "photo_id": "string"}' \
+     -d '{"title": "string", "description": "string", "place": "string"}' \
      'http://api.filmio/posts/{id}'
 ```
 
