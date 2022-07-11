@@ -94,7 +94,7 @@ async def update_post(id: str, new_post: Post, user: User = Depends(get_current_
     Update information about post
 
     Raises:
-    - `HTTPException` - post was not found or current user != author
+    - `HTTPException` - post was not found, current user != author or photo_id was changed
     """
     query = {'photo_id': id}
     post = posts.find_one(query)
@@ -103,6 +103,8 @@ async def update_post(id: str, new_post: Post, user: User = Depends(get_current_
     post = PostInDB(**post)
     if post.author != user.username:
         raise HTTPException(400, 'You are not the author of the post')
+    if post.photo_id != new_post.photo_id:
+        raise HTTPException(400, "You can't change photo id")
     posts.update_one(query, { "$set": new_post.dict()})
 
 
