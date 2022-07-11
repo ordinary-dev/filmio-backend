@@ -103,8 +103,7 @@ async def update_post(id: str, new_post: Post, user: User = Depends(get_current_
     post = PostInDB(**post)
     if post.author != user.username:
         raise HTTPException(400, 'You are not the author of the post')
-    posts.update_one(query, PostInDB(**new_post.dict(),
-                     author=post.author, timestamp=post.timestamp))
+    posts.update_one(query, { "$set": new_post.dict()})
 
 
 @posts_router.delete('/posts/{id}')
