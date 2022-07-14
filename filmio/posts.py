@@ -27,8 +27,8 @@ class PostOut(PostInDB):
     pass
 
 
-@posts_router.post('/posts', response_model=PostInDB)
-async def save_new_post(post: Post, user: User = Depends(get_current_user)) -> PostInDB:
+@posts_router.post('/posts', response_model=PostOut)
+async def save_new_post(post: Post, user: User = Depends(get_current_user)):
     """
     Store the new post in the database.
 
@@ -47,7 +47,7 @@ async def save_new_post(post: Post, user: User = Depends(get_current_user)) -> P
     post_in_db = PostInDB(
         **post.dict(), author=user.username, timestamp=int(time.time()))
     posts.insert_one(post_in_db.dict())
-    return post
+    return post_in_db
 
 
 @posts_router.get('/posts/random', response_model=PostOut)
