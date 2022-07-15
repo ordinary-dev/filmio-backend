@@ -292,6 +292,33 @@ Response:
 0
 ```
 
+* `GET /posts/location/{location}`
+
+Get a list of posts with a given location.
+
+| Name          | Location | Type   | Required? |
+| ---           | ---      | ---    | ---       |
+| location      | query    | string | true      |
+
+Request:
+```
+curl 'http://api.filmio/posts/location/{location}'
+```
+
+Response:
+```JSON
+[
+  {
+    "title": "string",
+    "description": "string",
+    "place": "string",
+    "photo_id": "string",
+    "author": "string",
+    "timestamp": 0
+  }
+]
+```
+
 * `GET /posts/{id}`
 
 Get information about post.
