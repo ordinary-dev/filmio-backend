@@ -73,7 +73,7 @@ async def get_posts_count(username: str) -> int:
     return posts.count_documents({'author': username})
 
 
-@posts_router.get('/posts/location/{location}', response_model=[PostOut])
+@posts_router.get('/posts/location/{location}', response_model=list[PostOut])
 async def get_posts_by_location(location: str):
     """
     Get a list of posts with a given location
