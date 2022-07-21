@@ -8,9 +8,8 @@ from fastapi.responses import FileResponse
 from PIL import Image
 from pydantic import BaseModel
 
-from .auth import get_current_user
+from .auth import get_current_user, UserInDB
 from .mongo import photos
-from .users import User
 
 photos_router = APIRouter(tags=['photos'])
 
@@ -39,7 +38,7 @@ def get_extension(file_type: str) -> str:
 
 
 @photos_router.post("/photos/", response_model=Photo)
-async def upload_photo(file: UploadFile, current_user: User = Depends(get_current_user)) -> Photo:
+async def upload_photo(file: UploadFile, current_user: UserInDB = Depends(get_current_user)) -> Photo:
     """
     Saves photo and returns photo width, height, extension and hash
 

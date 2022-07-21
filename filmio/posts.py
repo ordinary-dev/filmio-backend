@@ -6,16 +6,16 @@ from pydantic import BaseModel
 
 from .auth import get_current_user
 from .mongo import photos, posts
-from .users import User
+from .auth import UserInDB
 
 posts_router = APIRouter(tags=['posts'])
 
 
 class Post(BaseModel):
-    title: str
-    description: str
-    place: str
     photo_id: str
+    title: str | None = None
+    description: str | None = None
+    place: str | None = None
 
 
 class PostInDB(Post):
@@ -24,12 +24,11 @@ class PostInDB(Post):
 
 
 class PostOut(PostInDB):
-    photo_width: int
-    photo_height: int
+    pass
 
 
-@posts_router.post('/posts', response_model=PostInDB)
-async def save_new_post(post: Post, user: User = Depends(get_current_user)) -> PostInDB:
+@posts_router.post('/posts', response_model=PostOut)
+async def save_new_post(post: Post, user: UserInDB = Depends(get_current_user)):
     """
     Store the new post in the database.
 
@@ -48,7 +47,7 @@ async def save_new_post(post: Post, user: User = Depends(get_current_user)) -> P
     post_in_db = PostInDB(
         **post.dict(), author=user.username, timestamp=int(time.time()))
     posts.insert_one(post_in_db.dict())
-    return post
+    return post_in_db
 
 
 @posts_router.get('/posts/random', response_model=PostOut)
@@ -57,21 +56,15 @@ async def get_random_post() -> PostOut:
     Returns a random post
     """
     post = posts.aggregate([{"$sample": {"size": 1}}]).next()
-    photo = photos.find_one({'hash': post['photo_id']})
-    return PostOut(**post, photo_width=photo['width'], photo_height=photo['height'])
+    return PostOut(**post)
 
 
-@posts_router.get('/users/{username}/posts', response_model=list[PostOut])
-async def get_posts(username: str) -> list[PostOut]:
+@posts_router.get('/users/{username}/posts', response_model=list[str])
+async def get_posts(username: str):
     """ Returns all posts by a specific user """
-    res = []
     posts_from_db = posts.find({'author': username}).sort(
         'timestamp', pymongo.DESCENDING)
-    for post in posts_from_db:
-        photo = photos.find_one({'hash': post['photo_id']})
-        res.append(
-            PostOut(**post, photo_width=photo['width'], photo_height=photo['height']))
-    return res
+    return [post['photo_id'] for post in posts_from_db]
 
 
 @posts_router.get('/users/{username}/posts/count', response_model=int)
@@ -80,13 +73,38 @@ async def get_posts_count(username: str) -> int:
     return posts.count_documents({'author': username})
 
 
+@posts_router.get('/posts/location/{location}', response_model=list[PostOut])
+async def get_posts_by_location(location: str):
+    """
+    Get a list of posts with a given location
+    """
+    query = {'place': location}
+    res = posts.find(query)
+    return [PostOut(**post) for post in res]
+
+
+@posts_router.get('/posts/{id}', response_model=PostOut)
+async def get_one_post(id: str):
+    """
+    Get information about post
+
+    Raises:
+    - `HTTPException` - post was not found
+    """
+    query = {'photo_id': id}
+    post = posts.find_one(query)
+    if not post:
+        raise HTTPException(404, 'Post was not found')
+    return PostOut(**post)
+
+
 @posts_router.put('/posts/{id}')
-async def update_post(id: str, new_post: Post, user: User = Depends(get_current_user)):
+async def update_post(id: str, new_post: Post, user: UserInDB = Depends(get_current_user)):
     """
     Update information about post
 
     Raises:
-    - `HTTPException` - post was not found or current user != author
+    - `HTTPException` - post was not found, current user != author or photo_id was changed
     """
     query = {'photo_id': id}
     post = posts.find_one(query)
@@ -95,12 +113,13 @@ async def update_post(id: str, new_post: Post, user: User = Depends(get_current_
     post = PostInDB(**post)
     if post.author != user.username:
         raise HTTPException(400, 'You are not the author of the post')
-    posts.update_one(query, PostInDB(**new_post.dict(),
-                     author=post.author, timestamp=post.timestamp))
+    if post.photo_id != new_post.photo_id:
+        raise HTTPException(400, "You can't change photo id")
+    posts.update_one(query, { "$set": new_post.dict()})
 
 
 @posts_router.delete('/posts/{id}')
-async def delete_post(id: str, user: User = Depends(get_current_user)):
+async def delete_post(id: str, user: UserInDB = Depends(get_current_user)):
     """
     Delete one post by id
 

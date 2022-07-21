@@ -52,6 +52,7 @@ Create a new user.
 | Name          | Location | Type | Required? |
 | ---           | ---      |---   | ---       |
 | username      | body     | str  | true      |
+| email         | body     | str  | true      |
 | password      | body     | str  | true      |
 | name          | body     | str  | false     |
 
@@ -59,8 +60,18 @@ Request:
 ```
 curl -X POST \
      -H "Content-Type: application/json" \
-     -d '{"username": "user", "password": "pass"}' \
+     -d '{"username": "user", "email": "m@e.com", "password": "pass"}' \
      "http://api.filmio/users"
+```
+
+Response:
+```JSON
+{
+    "username": "string",
+    "email": "string",
+    "name": "string",
+    "profile_photo_url": "string"
+}
 ```
 
 * `GET /users/{username}`
@@ -81,7 +92,7 @@ Response:
 {
     "username": "string",
     "name": "string",
-    "profile_picture": "string"
+    "profile_photo_url": "string"
 }
 ```
 
@@ -128,8 +139,9 @@ Response:
 ```JSON
 {
     "username": "string",
+    "email": "string",
     "name": "string",
-    "profile_picture": "string"
+    "profile_photo_url": "string"
 }
 ```
 
@@ -210,16 +222,16 @@ Create a new post.
 | ---           | ---      | ---    | ---       |
 | Authorization | header   | bearer | true      |
 | photo_id      | body     | string | true      |
-| title         | body     | string | true      |
-| description   | body     | string | true      |
-| place         | body     | string | true      |
+| title         | body     | string | false     |
+| description   | body     | string | false     |
+| place         | body     | string | false     |
 
 Request:
 ```
 curl -X 'POST' \
      -H 'Authorization: Bearer {token}' \
      -H 'Content-Type: application/json' \
-     -d '{"title": "string", "description": "string","place": "string", "photo_id": "string"}' \
+     -d '{"photo_id": "string", "title": "string", "description": "string", "place": "string"}' \
      'http://api.filmio/posts'
 ```
 
@@ -252,9 +264,7 @@ Response:
   "place": "string",
   "photo_id": "string",
   "author": "string",
-  "timestamp": 0,
-  "photo_width": 0,
-  "photo_height": 0
+  "timestamp": 0
 }
 ```
 
@@ -273,18 +283,7 @@ curl http://api.filmio/users/{username}/posts
 
 Response:
 ```JSON
-[
-  {
-    "title": "string",
-    "description": "string",
-    "place": "string",
-    "photo_id": "string",
-    "author": "string",
-    "timestamp": 0,
-    "photo_width": 0,
-    "photo_height": 0
-  }
-]
+["string"]
 ```
 
 * `GET /users/{username}/posts/count`
@@ -305,6 +304,58 @@ Response:
 0
 ```
 
+* `GET /posts/location/{location}`
+
+Get a list of posts with a given location.
+
+| Name          | Location | Type   | Required? |
+| ---           | ---      | ---    | ---       |
+| location      | query    | string | true      |
+
+Request:
+```
+curl 'http://api.filmio/posts/location/{location}'
+```
+
+Response:
+```JSON
+[
+  {
+    "title": "string",
+    "description": "string",
+    "place": "string",
+    "photo_id": "string",
+    "author": "string",
+    "timestamp": 0
+  }
+]
+```
+
+* `GET /posts/{id}`
+
+Get information about post.
+
+| Name          | Location | Type   | Required? |
+| ---           | ---      | ---    | ---       |
+| id            | query    | string | true      |
+
+Request:
+```
+curl 'http://api.filmio/posts/{id}'
+```
+
+Response:
+```JSON
+{
+  "title": "string",
+  "description": "string",
+  "place": "string",
+  "photo_id": "string",
+  "author": "string",
+  "timestamp": 0
+}
+```
+
 * `PUT /posts/{id}`
 
 Update information about post.
@@ -313,13 +364,16 @@ Update information about post.
 | ---           | ---      | ---    | ---       |
 | id            | query    | string | true      |
 | Authorization | header   | bearer | true      |
+| title         | body     | string | false     |
+| description   | body     | string | false     |
+| place         | body     | string | false     |
 
 Request:
 ```
 curl -X 'PUT' \
      -H 'Authorization: Bearer {token}' \
      -H 'Content-Type: application/json' \
-     -d '{"title": "string", "description": "string", "place": "string", "photo_id": "string"}' \
+     -d '{"title": "string", "description": "string", "place": "string"}' \
      'http://api.filmio/posts/{id}'
 ```
 
