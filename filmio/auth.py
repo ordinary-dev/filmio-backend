@@ -23,20 +23,34 @@ ALGORITHM = "HS256"
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 
-class User(BaseModel):
+class BaseUser(BaseModel):
     username: str
     name: str | None = None
-    profile_picture: str | None = None
 
 
-class NewUser(User):
+class NewUser(BaseUser):
     """ Information sent when registering a new user """
+    email: str
     password: str
 
 
-class UserInDB(User):
+class UserInDB(BaseUser):
     """ Representation of a user in the database """
+    email: str
     hashed_password: str
+
+
+class CurrentUser(BaseUser):
+    """ Information returned to the account owner """
+    email: str
+
+
+class UserOut(BaseUser):
+    """
+    Information returned to any user.
+    This class should not contain sensitive information
+    """
+    pass
 
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -75,7 +89,7 @@ def create_access_token(data: dict) -> str:
     return encoded_jwt
 
 
-async def get_current_user(token: str = Depends(oauth2_scheme)):
+async def get_current_user(token: str = Depends(oauth2_scheme)) -> UserInDB:
     """
     A function that can be used when authorization is required.
 

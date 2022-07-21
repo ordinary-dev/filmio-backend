@@ -6,7 +6,7 @@ from pydantic import BaseModel
 
 from .auth import get_current_user
 from .mongo import photos, posts
-from .users import User
+from .auth import UserInDB
 
 posts_router = APIRouter(tags=['posts'])
 
@@ -28,7 +28,7 @@ class PostOut(PostInDB):
 
 
 @posts_router.post('/posts', response_model=PostOut)
-async def save_new_post(post: Post, user: User = Depends(get_current_user)):
+async def save_new_post(post: Post, user: UserInDB = Depends(get_current_user)):
     """
     Store the new post in the database.
 
@@ -99,7 +99,7 @@ async def get_one_post(id: str):
 
 
 @posts_router.put('/posts/{id}')
-async def update_post(id: str, new_post: Post, user: User = Depends(get_current_user)):
+async def update_post(id: str, new_post: Post, user: UserInDB = Depends(get_current_user)):
     """
     Update information about post
 
@@ -119,7 +119,7 @@ async def update_post(id: str, new_post: Post, user: User = Depends(get_current_
 
 
 @posts_router.delete('/posts/{id}')
-async def delete_post(id: str, user: User = Depends(get_current_user)):
+async def delete_post(id: str, user: UserInDB = Depends(get_current_user)):
     """
     Delete one post by id
 

@@ -52,6 +52,7 @@ Create a new user.
 | Name          | Location | Type | Required? |
 | ---           | ---      |---   | ---       |
 | username      | body     | str  | true      |
+| email         | body     | str  | true      |
 | password      | body     | str  | true      |
 | name          | body     | str  | false     |
 
@@ -59,8 +60,17 @@ Request:
 ```
 curl -X POST \
      -H "Content-Type: application/json" \
-     -d '{"username": "user", "password": "pass"}' \
+     -d '{"username": "user", "email": "m@e.com", "password": "pass"}' \
      "http://api.filmio/users"
+```
+
+Response:
+```JSON
+{
+    "username": "string",
+    "email": "string",
+    "name": "string"
+}
 ```
 
 * `GET /users/{username}`
@@ -80,8 +90,7 @@ Response:
 ```JSON
 {
     "username": "string",
-    "name": "string",
-    "profile_picture": "string"
+    "name": "string"
 }
 ```
 
@@ -128,8 +137,8 @@ Response:
 ```JSON
 {
     "username": "string",
-    "name": "string",
-    "profile_picture": "string"
+    "email": "string",
+    "name": "string"
 }
 ```
 

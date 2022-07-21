@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import BaseModel
 
-from .auth import (NewUser, User, UserInDB, get_user, verify_password,
+from .auth import (NewUser, CurrentUser, UserOut, UserInDB, get_user, verify_password,
                    create_access_token, get_current_user, get_password_hash)
 from .mongo import users
 
@@ -49,14 +49,14 @@ async def get_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
     return Token(access_token=access_token, token_type="bearer")
 
 
-@users_router.get("/me", response_model=User)
-async def get_user_info(current_user: User = Depends(get_current_user)):
+@users_router.get("/me", response_model=CurrentUser)
+async def get_user_info(current_user: UserInDB = Depends(get_current_user)):
     """ Returns information about the current user """
     return current_user
 
 
-@users_router.get("/users/{username}", response_model=User)
-async def get_user_by_username(username: str) -> UserInDB:
+@users_router.get("/users/{username}", response_model=UserOut)
+async def get_user_by_username(username: str):
     """
     Returns user information
 
@@ -69,12 +69,11 @@ async def get_user_by_username(username: str) -> UserInDB:
     return UserInDB(**user)
 
 
-@users_router.post('/users', response_model=User)
-async def register(user: NewUser) -> UserInDB:
+@users_router.post('/users', response_model=CurrentUser)
+async def register(user: NewUser):
     """ Creates a new user """
     user_in_db = UserInDB(
-        username=user.username,
-        name=user.name,
+        **user.dict(),
         hashed_password=get_password_hash(user.password)
     )
     users.insert_one(user_in_db.dict())
