@@ -38,11 +38,7 @@ class UserInDB(BaseUser):
     """ Representation of a user in the database """
     email: str
     hashed_password: str
-
-
-class CurrentUser(BaseUser):
-    """ Information returned to the account owner """
-    email: str
+    profile_photo_url: str
 
 
 class UserOut(BaseUser):
@@ -50,7 +46,12 @@ class UserOut(BaseUser):
     Information returned to any user.
     This class should not contain sensitive information
     """
-    pass
+    profile_photo_url: str
+
+
+class CurrentUser(UserOut):
+    """ Information returned to the account owner """
+    email: str
 
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")

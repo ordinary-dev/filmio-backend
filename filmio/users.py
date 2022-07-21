@@ -1,3 +1,4 @@
+import hashlib
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import BaseModel
@@ -72,9 +73,13 @@ async def get_user_by_username(username: str):
 @users_router.post('/users', response_model=CurrentUser)
 async def register(user: NewUser):
     """ Creates a new user """
+    email = user.email.strip().lower()
+    email_hash = hashlib.md5(email.encode()).hexdigest()
+    photo_url = f'https://www.gravatar.com/avatar/{email_hash}?d=identicon'
     user_in_db = UserInDB(
         **user.dict(),
-        hashed_password=get_password_hash(user.password)
+        hashed_password=get_password_hash(user.password),
+        profile_photo_url=photo_url
     )
     users.insert_one(user_in_db.dict())
     return user_in_db

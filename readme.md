@@ -69,7 +69,8 @@ Response:
 {
     "username": "string",
     "email": "string",
-    "name": "string"
+    "name": "string",
+    "profile_photo_url": "string"
 }
 ```
 
@@ -90,7 +91,8 @@ Response:
 ```JSON
 {
     "username": "string",
-    "name": "string"
+    "name": "string",
+    "profile_photo_url": "string"
 }
 ```
 
@@ -138,7 +140,8 @@ Response:
 {
     "username": "string",
     "email": "string",
-    "name": "string"
+    "name": "string",
+    "profile_photo_url": "string"
 }
 ```
 
